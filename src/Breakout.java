@@ -14,15 +14,23 @@ public class Breakout extends JPanel implements KeyListener
 {
 	Sound sound;
 	private int score = 0;
-	private boolean end;
-
-//	private JFrame restart;
-	private JFrame gameOver;
 	private JFrame start;
 
-	private final int gameSize = 1000;
-	private final int scorex = gameSize/5;
-	private final int scorey = gameSize-120;
+	private InputManager inputManager;
+
+	private final int gameSize = 500;
+	private final int scorex = 20; // dont change
+	private final int scorey = gameSize-20;
+	
+	private Paddle paddle = new Paddle();
+	
+	private Ball ball = new Ball();
+	
+	private int paddleSpeed = 6;
+	
+	private Blocks allBlocks = new Blocks();
+	
+	
 
 
 	// Constructor
@@ -40,13 +48,30 @@ public class Breakout extends JPanel implements KeyListener
 
 		setPreferredSize(new Dimension(gameSize, gameSize));
 
+		inputManager = new InputManager();
 		// launch game
 		JFrame frame = new JFrame("Sample Frame");
 		frame.add(this);
 		frame.setTitle("Game Title");
-
+		//setBackground(Color.black);
 		JOptionPane.showMessageDialog(start, "Game Instructions");
 
+		paddle.setPaddleWidth(gameSize/13);
+		paddle.setPaddleHeight(gameSize/33);
+		
+		paddle.setPaddleX(gameSize/2);
+		paddle.setPaddleY(gameSize-60);
+		
+		
+		ball.setBallSize(gameSize/50);
+		ball.setBallX(paddle.getPaddleX()+paddle.getPaddleWidth()/2-ball.getBallSize()/2);
+		ball.setBallY(paddle.getPaddleY()-ball.getBallSize()-5);
+		
+		blockSetup();
+		
+		
+		
+		
 		//Sets the speed of the game for each mode
 		if (level == 1)		// easy
 		{
@@ -89,10 +114,25 @@ public class Breakout extends JPanel implements KeyListener
 
 	public void MainLoop()
 	{
-		// updateGame();
+		checkKeys();
 		repaint();
 	}
 
+	public void blockSetup()
+	{
+		for(int r = 1; r < 5; r++)
+		{
+			for (int c = 0; c<12; c++)
+			{
+				Blocks b = new Blocks();
+				b.setBlockHeight(gameSize/50);
+				b.setBlockWidth(gameSize/12);
+				b.setBlockX(c*12);
+				b.setBlockY(r*(gameSize/4));
+				allBlocks.addBlock(b);
+			}
+		}
+	}
 
 	public void playMusicMain()
 	{
@@ -156,7 +196,7 @@ public class Breakout extends JPanel implements KeyListener
 	{
 		//Displays the Score
 		page.setColor(Color.black);
-		page.setFont(new Font("Comic Sans MS", Font.PLAIN, 50));
+		page.setFont(new Font("Comic Sans MS", Font.PLAIN, gameSize/20));
 		page.drawString("SCORE: " + Integer.toString(score), scorex, scorey);
 	}
 
@@ -165,8 +205,30 @@ public class Breakout extends JPanel implements KeyListener
 	{
 		super.paintComponent(page);		// paint baseclass members too
 		
-		// drawGame(page);
+		page.setColor(Color.white);
 		displayScore(page);
+		
+		page.setColor(Color.GRAY);
+		paddle.draw(page);
+		
+		page.setColor(Color.black);
+		ball.draw(page);
+		
+		
+		for(int i = 0; i < allBlocks.getTotalBlocks(); i++)
+		{
+			
+			if(i<12)
+				page.setColor(Color.red);
+			else if(i<24)
+				page.setColor(Color.yellow);
+			else if(i<36)
+				page.setColor(Color.green);
+			else if(i<48)
+				page.setColor(Color.blue);
+			
+			allBlocks.getBlock(i).draw(page);
+		}
 	}
 
 	public int getScore()
@@ -174,43 +236,41 @@ public class Breakout extends JPanel implements KeyListener
 		return score;
 	}
 
+	public void checkKeys()
+	{
+		//Pressing the keys
+		
+		if (inputManager.getKeyPressed(KeyEvent.VK_LEFT)==true
+				&& paddle.getPaddleX() > 0)
+		{
+			paddle.setPaddleX(paddle.getPaddleX()-paddleSpeed);
+		}
+
+		else if(inputManager.getKeyPressed(KeyEvent.VK_RIGHT)
+				&& paddle.getPaddleX() + paddle.getPaddleWidth() < gameSize)
+		{
+			paddle.setPaddleX(paddle.getPaddleX()+paddleSpeed);
+
+		}
+
+
+	}
 
 
 
 	public void keyPressed(KeyEvent arg0) 
 	{
 		int c = arg0.getKeyCode();
-
-		//Pressing the keys
-		if (c == KeyEvent.VK_NUMPAD1)
-		{
-
-		}
-
-		if (c == KeyEvent.VK_NUMPAD2) 
-		{
-
-		}
-
-		if (c == KeyEvent.VK_NUMPAD3)
-		{
-
-		}
+		inputManager.setKeyPressed(c, true);
 	}
-
-
 
 	public void keyReleased(KeyEvent arg0) 
 	{
 		int c = arg0.getKeyCode();
-
-		//When S is pressed the music stops
-		if (c == KeyEvent.VK_S) 
-		{
-			sound.toggle();
-		}
-
+		inputManager.setKeyPressed(c, false);
 	}
+
+
 
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
