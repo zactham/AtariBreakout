@@ -58,9 +58,12 @@ public class Breakout extends JPanel implements KeyListener
 
 		paddle.setX(gameSize/2);
 		paddle.setY(gameSize-60);
+		paddle.createBounds(paddle.getX(), paddle.getY(), paddle.getPaddleWidth(), paddle.getPaddleHeight());
 
+		//TODO make init functions
 		ball.setX(paddle.getX()+paddle.getPaddleWidth()/2-ball.getBallSize()/2);
 		ball.setY(paddle.getY()-ball.getBallSize()-5);
+		ball.createBounds(ball.getX(), ball.getY(), ball.getBallSize(), ball.getBallSize());
 
 		blockSetup();
 
@@ -110,27 +113,35 @@ public class Breakout extends JPanel implements KeyListener
 	public void MainLoop()
 	{
 		checkKeys();
+		updateGame();
 		repaint();
+	}
+	
+	public void updateGame()
+	{
+		paddle.update();
+		ball.update();
+		
 	}
 
 	public void blockSetup()
 	{
 		for(int r = 0; r < 4; r++)
 		{
-			System.out.println("test:");
 			for (int c = 0; c<12; c++)
 			{
 				Blocks b = new Blocks();
-				b.setBlockHeight(gameSize/40);
-				b.setBlockWidth(gameSize/12);
+				
 				if (c>0)
-					b.setBlockX(allBlocks.getBlock(c-1).getBlockX() + b.getBlockWidth());
+					b.setX(allBlocks.getBlock(c-1).getX() + b.getBlockWidth());
 				else
-					b.setBlockX(0);
+					b.setX(0);
 				if(r>0)
-					b.setBlockY(allBlocks.getBlock(r-1).getBlockY() + b.getBlockHeight());
+					b.setY(allBlocks.getBlock(12* (r-1)).getY() + b.getBlockHeight());
 				else
-					b.setBlockY(0);
+					b.setY(0);
+				
+				b.createBounds(b.getX(), b.getY(), b.getBlockWidth(), b.getBlockHeight());
 				allBlocks.addBlock(b);
 			}
 		}

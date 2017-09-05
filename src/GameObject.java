@@ -15,6 +15,9 @@ public class GameObject
 	protected static final int paddleWidth = gameSize/13;
 	protected static final int paddleHeight = gameSize/33;
 	
+	private static final int blockWidth = gameSize/12;
+	private static final int blockHeight = gameSize/40;
+	
 	private Rectangle bounds = null;
 
 
@@ -39,6 +42,17 @@ public class GameObject
 	{
 		y = yPos;
 	}
+	
+	public int getBlockHeight()
+	{
+		return blockHeight;
+	}
+	
+	public int getBlockWidth()
+	{
+		return blockWidth;
+	}
+	
 
 	public int getBallSize()
 	{
@@ -82,13 +96,11 @@ public class GameObject
 		if (getBounds() != null)
 			bounds.setLocation(x, y);
 
-
-		//updateBounds();
 	}
 
 	public void draw (Graphics page)
 	{
-		//drawBounds(page);
+		drawBounds(page);
 	}
 
 	public void update()

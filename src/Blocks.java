@@ -2,7 +2,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-public class Blocks 
+public class Blocks extends GameObject
 {
 	//These are the values for when the gameSize is 1000
 		private int blockX = 60;
@@ -12,47 +12,6 @@ public class Blocks
 		private int blockHeight = 80;
 		
 		private ArrayList <Blocks> allBlocks = new ArrayList();
-
-		public int getBlockX()
-		{
-			return blockX;
-		}
-
-		public void setBlockX(int x)
-		{
-			blockX = x;
-		}
-		
-		public void setBlockWidth(int w)
-		{
-			 blockWidth = w;
-		}
-
-		public int getBlockWidth()
-		{
-			return blockWidth;
-		}
-		
-		public void setBlockHeight(int h)
-		{
-			 blockHeight = h;
-		}
-
-		public int getBlockHeight()
-		{
-			return blockHeight;
-		}
-
-
-		public int getBlockY()
-		{
-			return blockY;
-		}
-
-		public void setBlockY(int y)
-		{
-			blockY = y;
-		}
 		
 		public void addBlock(Blocks b)
 		{
@@ -71,12 +30,22 @@ public class Blocks
 
 		public void draw (Graphics page)
 		{
-			page.fillRect(getBlockX(), getBlockY(), getBlockWidth(), getBlockHeight());
+			super.draw(page);
+			
+			page.fillRect(getX(), getY(), getBlockWidth(), getBlockHeight());
 			
 			page.setColor(Color.BLACK);
-			page.drawRect(getBlockX(), getBlockY(), getBlockWidth(), getBlockHeight());
+			page.drawRect(getX(), getY(), getBlockWidth(), getBlockHeight());
 			
 
 
+		}
+		
+		@Override
+		public void update()
+		{
+			super.update();
+			
+			updateBounds();
 		}
 }
