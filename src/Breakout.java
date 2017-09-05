@@ -21,16 +21,16 @@ public class Breakout extends JPanel implements KeyListener
 	private final int gameSize = 500;
 	private final int scorex = 20; // dont change
 	private final int scorey = gameSize-20;
-	
+
 	private Paddle paddle = new Paddle();
-	
+
 	private Ball ball = new Ball();
-	
+
 	private int paddleSpeed = 6;
-	
+
 	private Blocks allBlocks = new Blocks();
-	
-	
+
+
 
 
 	// Constructor
@@ -56,22 +56,17 @@ public class Breakout extends JPanel implements KeyListener
 		//setBackground(Color.black);
 		JOptionPane.showMessageDialog(start, "Game Instructions");
 
-		paddle.setPaddleWidth(gameSize/13);
-		paddle.setPaddleHeight(gameSize/33);
-		
-		paddle.setPaddleX(gameSize/2);
-		paddle.setPaddleY(gameSize-60);
-		
-		
-		ball.setBallSize(gameSize/50);
-		ball.setBallX(paddle.getPaddleX()+paddle.getPaddleWidth()/2-ball.getBallSize()/2);
-		ball.setBallY(paddle.getPaddleY()-ball.getBallSize()-5);
-		
+		paddle.setX(gameSize/2);
+		paddle.setY(gameSize-60);
+
+		ball.setX(paddle.getX()+paddle.getPaddleWidth()/2-ball.getBallSize()/2);
+		ball.setY(paddle.getY()-ball.getBallSize()-5);
+
 		blockSetup();
-		
-		
-		
-		
+
+
+
+
 		//Sets the speed of the game for each mode
 		if (level == 1)		// easy
 		{
@@ -94,7 +89,7 @@ public class Breakout extends JPanel implements KeyListener
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		centerWindow();
 		frame.setLocationRelativeTo(TitleScreen.theApp);
-		
+
 		// runs the mainLoop
 		ActionListener timerAction = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -120,15 +115,22 @@ public class Breakout extends JPanel implements KeyListener
 
 	public void blockSetup()
 	{
-		for(int r = 1; r < 5; r++)
+		for(int r = 0; r < 4; r++)
 		{
+			System.out.println("test:");
 			for (int c = 0; c<12; c++)
 			{
 				Blocks b = new Blocks();
-				b.setBlockHeight(gameSize/50);
+				b.setBlockHeight(gameSize/40);
 				b.setBlockWidth(gameSize/12);
-				b.setBlockX(c*12);
-				b.setBlockY(r*(gameSize/4));
+				if (c>0)
+					b.setBlockX(allBlocks.getBlock(c-1).getBlockX() + b.getBlockWidth());
+				else
+					b.setBlockX(0);
+				if(r>0)
+					b.setBlockY(allBlocks.getBlock(r-1).getBlockY() + b.getBlockHeight());
+				else
+					b.setBlockY(0);
 				allBlocks.addBlock(b);
 			}
 		}
@@ -189,7 +191,7 @@ public class Breakout extends JPanel implements KeyListener
 
 	private void resetGame()
 	{
-		
+
 	}
 
 	public void displayScore(Graphics page)
@@ -204,20 +206,20 @@ public class Breakout extends JPanel implements KeyListener
 	protected void paintComponent(Graphics page)
 	{
 		super.paintComponent(page);		// paint baseclass members too
-		
+
 		page.setColor(Color.white);
 		displayScore(page);
-		
+
 		page.setColor(Color.GRAY);
 		paddle.draw(page);
-		
+
 		page.setColor(Color.black);
 		ball.draw(page);
-		
-		
+
+
 		for(int i = 0; i < allBlocks.getTotalBlocks(); i++)
 		{
-			
+
 			if(i<12)
 				page.setColor(Color.red);
 			else if(i<24)
@@ -226,7 +228,7 @@ public class Breakout extends JPanel implements KeyListener
 				page.setColor(Color.green);
 			else if(i<48)
 				page.setColor(Color.blue);
-			
+
 			allBlocks.getBlock(i).draw(page);
 		}
 	}
@@ -239,17 +241,17 @@ public class Breakout extends JPanel implements KeyListener
 	public void checkKeys()
 	{
 		//Pressing the keys
-		
+
 		if (inputManager.getKeyPressed(KeyEvent.VK_LEFT)==true
-				&& paddle.getPaddleX() > 0)
+				&& paddle.getX() > 0)
 		{
-			paddle.setPaddleX(paddle.getPaddleX()-paddleSpeed);
+			paddle.setX(paddle.getX()-paddleSpeed);
 		}
 
 		else if(inputManager.getKeyPressed(KeyEvent.VK_RIGHT)
-				&& paddle.getPaddleX() + paddle.getPaddleWidth() < gameSize)
+				&& paddle.getX() + paddle.getPaddleWidth() < gameSize)
 		{
-			paddle.setPaddleX(paddle.getPaddleX()+paddleSpeed);
+			paddle.setX(paddle.getX()+paddleSpeed);
 
 		}
 

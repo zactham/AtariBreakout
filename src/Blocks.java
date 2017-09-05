@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
@@ -71,6 +72,10 @@ public class Blocks
 		public void draw (Graphics page)
 		{
 			page.fillRect(getBlockX(), getBlockY(), getBlockWidth(), getBlockHeight());
+			
+			page.setColor(Color.BLACK);
+			page.drawRect(getBlockX(), getBlockY(), getBlockWidth(), getBlockHeight());
+			
 
 
 		}
