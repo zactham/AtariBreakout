@@ -237,15 +237,6 @@ public class Breakout extends JPanel implements KeyListener
 
 	}
 
-	public int xfactor(int ballX, int paddleX)
-	{
-		float speed = 10;
-		float diff = ballX - paddleX;
-		float ret = diff / GameObject.paddleWidth;	// 0 to 1
-		ret = ret - 0.5f;	//-.5 to .5
-		return (int)((ret * speed) + 0.5f);	// round to int
-	}
-	
 	public void ballMovement(String b)
 	{
 		if(b.equals("move down"))
@@ -254,33 +245,33 @@ public class Breakout extends JPanel implements KeyListener
 			moveBallUp();
 		else if(b.equals("paddle left wall"))
 		{
-			ball.setX(ball.getX()+xfactor(ball.getX(), paddle.getX()));
+			ball.setX(ball.getX()+ballSpeed);
 			ball.setY(ball.getY()-ballSpeed);
 		}
 		else if(b.equals("paddle right wall"))
 		{
-			ball.setX(ball.getX()-xfactor(ball.getX(), paddle.getX()));
+			ball.setX(ball.getX()-ballSpeed);
 			ball.setY(ball.getY()-ballSpeed);
 		}
 		else if(b.equals("block left wall"))
 		{
-			ball.setX(ball.getX()+xfactor(ball.getX(), paddle.getX()));
+			ball.setX(ball.getX()+ballSpeed);
 			ball.setY(ball.getY()-ballSpeed);
 		}
 		else if(b.equals("block right wall"))
 		{
-			ball.setX(ball.getX()-xfactor(ball.getX(), paddle.getX()));
+			ball.setX(ball.getX()-ballSpeed);
 			ball.setY(ball.getY()+ballSpeed);
 		}
 
 		else if(blockCollide)
 		{
-			ball.setX(ball.getX()+xfactor(ball.getX(), paddle.getX()));
+			ball.setX(ball.getX()+ball.getX()/paddle.getX());
 			ball.setY(ball.getY()+ballSpeed);
 		}
 		else if(paddleCollide)	
 		{
-			ball.setX(ball.getX()+xfactor(ball.getX(), paddle.getX()));
+			ball.setX(ball.getX()+ball.getX()/paddle.getX());
 			ball.setY(ball.getY()-ballSpeed);
 		}
 	}
