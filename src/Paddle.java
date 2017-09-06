@@ -9,7 +9,6 @@ public class Paddle extends GameObject
 		super.draw(page);
 		page.fillRect(getX(), getY(), getPaddleWidth(), getPaddleHeight());
 
-
 	}
 	
 	@Override

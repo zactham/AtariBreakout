@@ -19,20 +19,28 @@ public class Breakout extends JPanel implements KeyListener
 	private InputManager inputManager;
 
 	private final int gameSize = 500;
-	private final int scorex = 20; // dont change
-	private final int scorey = gameSize-20;
+	private final int scoreX = 20; // dont change
+	private final int scoreY = gameSize-20;
+	private final int livesX = scoreX + gameSize-150 ;
+	private final int livesY = scoreY ;
 
 	private Paddle paddle = new Paddle();
-	private boolean paddleCollide = false;
-	
+	private boolean paddleCollide = true;
+
 
 	private Ball ball = new Ball();
 
-	private int paddleSpeed = 6;
+	private final int paddleSpeed = 6;
 
 	private Blocks allBlocks = new Blocks();
-	private int ballSpeed = 5;
+	private final int ballSpeed = 5;
 	private boolean blockCollide = false;
+
+	private String ballMove = "null";
+
+	private int lives = 3;
+	
+	private boolean gameOver = false;
 
 
 
@@ -48,6 +56,7 @@ public class Breakout extends JPanel implements KeyListener
 	public void init(int level)
 	{
 		sound = new Sound();
+		playMusic();
 
 		setPreferredSize(new Dimension(gameSize, gameSize));
 
@@ -59,15 +68,8 @@ public class Breakout extends JPanel implements KeyListener
 		//setBackground(Color.black);
 		JOptionPane.showMessageDialog(start, "Game Instructions");
 
-		paddle.setX(gameSize/2);
-		paddle.setY(gameSize-60);
-		paddle.createBounds(paddle.getX(), paddle.getY(), paddle.getPaddleWidth(), paddle.getPaddleHeight());
-
-		//TODO make init functions
-		ball.setX(paddle.getX()+paddle.getPaddleWidth()/2-ball.getBallSize()/2);
-		ball.setY(paddle.getY()-ball.getBallSize()-5);
-		ball.createBounds(ball.getX(), ball.getY(), ball.getBallSize(), ball.getBallSize());
-
+		paddleInit();
+		ballInit(0);
 		blockSetup();
 
 
@@ -113,6 +115,20 @@ public class Breakout extends JPanel implements KeyListener
 
 	}
 
+	public void paddleInit()
+	{
+		paddle.setX(gameSize/2);
+		paddle.setY(gameSize-60);
+		paddle.createBounds(paddle.getX(), paddle.getY(), paddle.getPaddleWidth(), paddle.getPaddleHeight());
+	}
+
+	public void ballInit(int startingY)
+	{
+		ball.setX(paddle.getX()+paddle.getPaddleWidth()/2-ball.getBallSize()/2);
+		ball.setY(paddle.getY()-ball.getBallSize()-5-startingY);
+		ball.createBounds(ball.getX(), ball.getY(), ball.getBallSize(), ball.getBallSize());
+	}
+
 	public void MainLoop()
 	{
 		checkKeys();
@@ -125,28 +141,28 @@ public class Breakout extends JPanel implements KeyListener
 		paddle.update();
 		ball.update();
 
-		if(blockCollide)
-		{
-			ball.setX(ball.getX()+ball.getX()/paddle.getX());
-			ball.setY(ball.getY()+ballSpeed);
-		}
-			//moveBallDown();
-		else
-			blockCollision();
-		if(paddleCollide)	
-		{
-			ball.setX(ball.getX()+ball.getX()/paddle.getX());
-			ball.setY(ball.getY()-ballSpeed);
-		}
-		else
-		{
-			moveBallDown();
-			paddleCollision();
-		}
-		
 		ballOutofBounds();
-		
+		//System.out.println(ballMove);
+		ballMovement(ballMove);
 
+		paddleCollision();
+		blockCollision();
+		System.out.println(paddleCollide);
+		
+		if(lives <1)
+		{
+			
+				gameOver = true;
+				gameEnding();
+		}
+			
+
+
+	}
+	
+	public void playMusic()
+	{
+		sound.play("TitleScreenMusic.wav");
 	}
 
 	public void blockSetup()
@@ -186,28 +202,87 @@ public class Breakout extends JPanel implements KeyListener
 					score++;
 					blockCollide =  true;
 					paddleCollide = false;
+					ballMove = "null";
 					break;
 				}
 			}
 		}
 	}
-	
+
 	public void ballOutofBounds()
 	{
+		if(ball.getY()-ball.getBallSize()>= gameSize)
+		{
+			lives--;
+			paddleInit();
+			int startingY = gameSize/2-50;
+			ballInit(startingY);
+			
+		}
 		if(ball.getY()<=0)
-			blockCollide = true;
-		if(ball.getX()<=0)
+			ballMove = "move down";
+		if(ball.getX()<=0 && ball.getY()>=gameSize/2 && blockCollide)
+			ballMove = ("block left wall");
+
+		if(ball.getX()<=0 && ball.getY()>=gameSize/2 && paddleCollide)
+			ballMove = ("paddle left wall");
+
+		if(ball.getX()+ball.getBallSize()>=gameSize && paddleCollide)
+			ballMove = ("paddle right wall");
+
+		if(ball.getX()+ball.getBallSize()>=gameSize && blockCollide)
+			ballMove = ("block right wall");
+
+
+
+	}
+
+	public int xfactor(int ballX, int paddleX)
+	{
+		float speed = 10;
+		float diff = ballX - paddleX;
+		float ret = diff / GameObject.paddleWidth;	// 0 to 1
+		ret = ret - 0.5f;	//-.5 to .5
+		return (int)((ret * speed) + 0.5f);	// round to int
+	}
+	
+	public void ballMovement(String b)
+	{
+		if(b.equals("move down"))
+			moveBallDown();
+		else if(b.equals("move up"))
+			moveBallUp();
+		else if(b.equals("paddle left wall"))
 		{
-			ball.setX(ball.getX()+ballSpeed);
+			ball.setX(ball.getX()+xfactor(ball.getX(), paddle.getX()));
+			ball.setY(ball.getY()-ballSpeed);
+		}
+		else if(b.equals("paddle right wall"))
+		{
+			ball.setX(ball.getX()-xfactor(ball.getX(), paddle.getX()));
+			ball.setY(ball.getY()-ballSpeed);
+		}
+		else if(b.equals("block left wall"))
+		{
+			ball.setX(ball.getX()+xfactor(ball.getX(), paddle.getX()));
+			ball.setY(ball.getY()-ballSpeed);
+		}
+		else if(b.equals("block right wall"))
+		{
+			ball.setX(ball.getX()-xfactor(ball.getX(), paddle.getX()));
 			ball.setY(ball.getY()+ballSpeed);
 		}
-		
-		if(ball.getX()+ball.getBallSize()>=gameSize)
+
+		else if(blockCollide)
 		{
-			ball.setX(ball.getX()-ballSpeed);
+			ball.setX(ball.getX()+xfactor(ball.getX(), paddle.getX()));
 			ball.setY(ball.getY()+ballSpeed);
 		}
-		
+		else if(paddleCollide)	
+		{
+			ball.setX(ball.getX()+xfactor(ball.getX(), paddle.getX()));
+			ball.setY(ball.getY()-ballSpeed);
+		}
 	}
 
 	public void moveBallDown()
@@ -221,7 +296,7 @@ public class Breakout extends JPanel implements KeyListener
 		ball.setY(ball.getY()-ballSpeed);
 	}
 
-	
+
 	//Create a right and left bounds for the paddle, so if it hits left the ball moves up y and left x
 	//Do the same for each block
 	public void paddleCollision()
@@ -231,6 +306,7 @@ public class Breakout extends JPanel implements KeyListener
 			System.out.println("Ball hit paddle");
 			paddleCollide = true;
 			blockCollide = false;
+			ballMove = "null";
 		}
 	}
 
@@ -287,9 +363,17 @@ public class Breakout extends JPanel implements KeyListener
 		}
 	}
 
-	private void resetGame()
+	private void resetGame()//TODO
 	{
-
+		gameOver = false;
+		paddleCollide = true;
+		blockCollide = false;
+		ballMove = "null";
+		score = 0;
+		lives = 3;
+		ballInit(0);
+		paddleInit();
+		blockSetup();
 	}
 
 	public void displayScore(Graphics page)
@@ -297,7 +381,15 @@ public class Breakout extends JPanel implements KeyListener
 		//Displays the Score
 		page.setColor(Color.black);
 		page.setFont(new Font("Comic Sans MS", Font.PLAIN, gameSize/20));
-		page.drawString("SCORE: " + Integer.toString(score), scorex, scorey);
+		page.drawString("SCORE: " + Integer.toString(score), scoreX, scoreY);
+	}
+	
+	public void displayLives(Graphics page)
+	{
+		//Displays the Score
+		page.setColor(Color.black);
+		page.setFont(new Font("Comic Sans MS", Font.PLAIN, gameSize/20));
+		page.drawString("LIVES: " + Integer.toString(lives), livesX, livesY);
 	}
 
 	@Override
@@ -307,6 +399,7 @@ public class Breakout extends JPanel implements KeyListener
 
 		page.setColor(Color.white);
 		displayScore(page);
+		displayLives(page);
 
 		page.setColor(Color.GRAY);
 		paddle.draw(page);
@@ -333,10 +426,6 @@ public class Breakout extends JPanel implements KeyListener
 		}
 	}
 
-	public int getScore()
-	{
-		return score;
-	}
 
 	public void checkKeys()
 	{
