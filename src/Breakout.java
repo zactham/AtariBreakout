@@ -66,7 +66,7 @@ public class Breakout extends JPanel implements KeyListener
 		frame.add(this);
 		frame.setTitle("Game Title");
 		//setBackground(Color.black);
-		JOptionPane.showMessageDialog(start, "Game Instructions");
+		JOptionPane.showMessageDialog(start, "Move the paddle using the arrow keys and try to eliminate all of the blocks");
 
 		paddleInit();
 		ballInit(0);
